@@ -1,11 +1,9 @@
 const { app, BrowserWindow } = require('electron');
-// const { ipcMain } = require('electron')
-// ipcMain.on('scan-message', (event, arg) => {
-//   console.log('++++++++') // prints "ping"
-  
+let currentDeviceList = [];
 
-// })
-
+app
+  .commandLine
+  .appendSwitch('enable-web-bluetooth', true);
 
 function createWindow () {   
   // 创建浏览器窗口
@@ -22,11 +20,28 @@ function createWindow () {
 
   // 打开开发者工具
   win.webContents.openDevTools()
+
+  const { ipcMain } = require('electron');
+  const content = win.webContents;
+  content.on('select-bluetooth-device', (event, deviceList, callback) => {
+    event.preventDefault();
+    deviceList.forEach(device => {
+      if (currentDeviceList.find(item => item.deviceId == device.deviceId)) return;
+      currentDeviceList.push(device);
+      if (currentDeviceList.length > 3) {
+        console.log('Device list:', currentDeviceList);
+        // Display the device list in a window.
+        content.send('display-ble-device', currentDeviceList);
+        callback('');
+      }
+    })
+  });
+
+  mainWindow.webContents.send('main-process-messages', 'nihao');
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-// 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
   console.log('create windows log')
   createWindow()
@@ -43,12 +58,7 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  // 在macOS上，当单击dock图标并且没有其他窗口打开时，
-  // 通常在应用程序中重新创建一个窗口。
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. 也可以拆分成几个文件，然后用 require 导入。
+});

@@ -8,15 +8,11 @@
   <body>
     <h1>Hello zeke!</h1>
     <button id="scan-btn">Scan devices</button>
+
+    <ul id="device-list"></ul>
   </body>
   <script>
-    // const scanBtn = document.querySelector("#scan-btn")
-    // console.log("scan button", scanBtn);
-    // const { ipcRenderer } = require('electron')
-    // scanBtn.onclick = () => {
-    //   console.log('click button')
-    //   ipcRenderer.send('scan-message', 'ping')
-    // }
     require('./index.js')
+    require('./renderer.js')
   </script>
 </html>
